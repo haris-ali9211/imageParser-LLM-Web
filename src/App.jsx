@@ -1,78 +1,100 @@
-
 import './styles/styles.css';
-import React from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 
 const App = () => {
-  return (
-    <div className='body'>
-      <div className="container" id="container">
-        <header>
-          <section className="window--buttons">
-            <div className="window__close"></div>
-            <div className="window__minimize"></div>
-            <div className="window__maximize"></div>
-          </section>
-        </header>
+    const textareaRef = useRef(null);
+    const [zIndex, setZIndex] = useState(1);
 
-        <aside>
-          <div>
-            <input type="text" placeholder="Search" /><br />
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, []); // Set initial height when component mounts
 
-            <button className="active" id="sidebar-btn">Discover</button>
-            <button id="sidebar-btn">Arcade</button>
-            <button id="sidebar-btn">Create</button>
-            <button id="sidebar-btn">Work</button>
-            <button id="sidebar-btn">Play</button>
-            <button id="sidebar-btn">Develop</button>
-            <button id="sidebar-btn">Categories</button>
-            <button id="sidebar-btn">Updates</button>
-          </div>
+    const handleInput = () => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
 
-          <div className="profile">
-            <img src="https://pbs.twimg.com/profile_images/994592419705274369/RLplF55e.jpg" alt="Profile Pic" className="profile--pic" />
-            <h1>Jimmy Donaldson</h1>
-          </div>
-        </aside>
+            if (textareaRef.current.scrollHeight > 100) {
+                setZIndex(10);
+            } else {
+                setZIndex(1);
+            }
+        }
+    };
 
-        <div className="content">
-          <div className="ideas">
-            <div className="idea">
-              <p>MASTER YOUR MAC</p>
-              <h1>Make a great<br />handoff</h1>
-              <p>Work seamlessly across devices</p>
+    return (<div className='body'>
+        <div className="container" id="container">
+            <header>
+                <section className="window--buttons">
+                    <div className="window__close"></div>
+                    <div className="window__minimize"></div>
+                    <div className="window__maximize"></div>
+                </section>
+            </header>
+
+            <aside>
+                <div>
+                    <input type="text" placeholder="Search"/><br/>
+
+                    <button id="sidebar-btn">Remove unused css</button>
+                    <button id="sidebar-btn">Type of functions</button>
+                    <button id="sidebar-btn">Tags for kraft Bags</button>
+                    <button id="sidebar-btn">Work</button>
+                    <button id="sidebar-btn">Play</button>
+                    <button id="sidebar-btn">Develop</button>
+                    <button id="sidebar-btn">Categories</button>
+                    <button id="sidebar-btn">DevOps MCQ preparation guide</button>
+                </div>
+
+                <div className="profile">
+                    <img src="https://pbs.twimg.com/profile_images/994592419705274369/RLplF55e.jpg"
+                         alt="Profile Pic" className="profile--pic"/>
+                    <h1>Jimmy Donaldson</h1>
+                </div>
+            </aside>
+
+            <div className="content">
+                <section className="updates">
+                    <h1>Prompt Name </h1>
+
+                    <div className="update update-1">
+                        {/*<div className="updt-left">*/}
+                        {/*  <img src="https://img.icons8.com/color/452/microsoft-powerpoint-2019.png" alt="powerpoint icon" />*/}
+                        {/*  <h1>Microsoft Powerpoint</h1>*/}
+                        {/*</div>*/}
+                        {/*<div className="buttons">*/}
+                        {/*  <a href="https://bit.ly/3gdGvT8" target="_warning">*/}
+                        {/*    <button>Update</button>*/}
+                        {/*  </a>*/}
+                        {/*</div>*/}
+                    </div>
+                </section>
+
+                <section className="trending">
+                    <h1>Chat</h1>
+                    <div className="grid">
+        <span className="grid__app">
+            <textarea
+                ref={textareaRef}
+                placeholder="Search"
+                onInput={handleInput}
+                style={{zIndex: zIndex}}
+            ></textarea>
+            <button>              <img src="https://img.icons8.com/?size=100&id=7695&format=png&color=000000"
+                                       alt="powerpoint icon"/>
+</button>
+        </span>
+                    </div>
+                </section>
+
+
             </div>
-          </div>
-
-          <section className="updates">
-            <h1>Updates</h1>
-
-            <div className="update update-1">
-              <div className="updt-left">
-                <img src="https://img.icons8.com/color/452/microsoft-powerpoint-2019.png" alt="powerpoint icon" />
-                <h1>Microsoft Powerpoint</h1>
-              </div>
-              <div className="buttons">
-                <a href="https://bit.ly/3gdGvT8" target="_warning">
-                  <button>Update</button>
-                </a>
-              </div>
-            </div>
-          </section>
-
-          <section className="trending">
-            <h1>Chat</h1>
-            <div className="grid">
-              <span className="grid__app">
-                <h1>Kindle</h1>
-                <button>GET</button>
-              </span>
-            </div>
-          </section>
         </div>
-      </div>
-    </div>
-
-  );
+    </div>);
 };
 
-export default App
+export default App;
+
