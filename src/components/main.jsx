@@ -1,38 +1,66 @@
 import '../styles/styles.css';
 import {useRef, useEffect, useState} from 'react';
 import {useImageAnalyzerContext} from "../context/context.jsx";
-import iSImage from "../assets/is.jpg";
-import { marked } from 'marked';  // Import the marked package
+import Marked from 'marked-react';
+import {toast} from 'react-toastify';
 
 const Main = () => {
+
+    const notify = (errorMessages) => {
+        toast.error(errorMessages, {
+            draggable: true,
+            autoClose: 2000,
+            hideProgressBar: true
+        });
+    }
     const {questionAsk, isLoading} = useImageAnalyzerContext();
 
     const [messages, setMessages] = useState([]);
-    const [answer, setAnswer] = useState([]);
     const [inputValue, setInputValue] = useState("");
-    const [htmlAnswer, setHtmlAnswer] = useState(""); // New state for HTML answer
+    const [selectedFile, setSelectedFile] = useState(null); // New state for file
+
+    const fileInputRef = useRef(null); // Reference to hidden file input
 
     const postQuestion = async () => {
-        console.log("clicked", inputValue.toString());
-        setMessages([...messages, inputValue]);
-        const response = await fetch(iSImage);
-        const blob = await response.blob();
-        const file = new File([blob], "is.jpg", {type: blob.type});
 
-        // Create FormData and append the file and question
+        if(selectedFile === null){
+            notify("please upload a file");
+            return;
+        }
+
+        if(inputValue === ""){
+            notify("Enter a question please");
+            return;
+        }
+
+        // Add user message to messages state
+        setMessages([...messages, {type: 'user', text: inputValue}]);
+
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('question', `${inputValue.toString()}`);
+        formData.append('question', inputValue.toString());
+
+        if (selectedFile) {
+            formData.append('file', selectedFile); // Append the selected file if it exists
+        }
 
         const responseAnswer = await questionAsk(formData);
-        setAnswer([...answer, responseAnswer.answer]);
 
-        // Convert responseAnswer.answer to HTML using marked
-        const htmlFormattedAnswer = marked(responseAnswer.answer);
-        setHtmlAnswer(htmlFormattedAnswer);
+        // Add response message to messages state
+        setMessages([...messages, {type: 'user', text: inputValue}, {type: 'response', text: responseAnswer.answer}]);
 
-        setInputValue("");
-        console.log(responseAnswer.answer);
+        setInputValue(""); // Clear the input value after submission
+        setSelectedFile(null); // Clear the selected file after submission
+        fileInputRef.current.value = ""; // Reset the file input element
+    };
+
+    const handleFileChange = (e) => {
+        setSelectedFile(e.target.files[0]);
+    };
+
+    const handleButtonClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click(); // Trigger click on hidden file input
+        }
     };
 
     const textareaRef = useRef(null);
@@ -43,7 +71,7 @@ const Main = () => {
             textareaRef.current.style.height = 'auto';
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
-    }, []); // Set initial height when component mounts
+    }, []);
 
     const handleInput = (e) => {
         setInputValue(e.target.value);
@@ -55,6 +83,15 @@ const Main = () => {
                 setZIndex(10);
             } else {
                 setZIndex(1);
+            }
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if(!isLoading ){
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                postQuestion();
             }
         }
     };
@@ -73,7 +110,6 @@ const Main = () => {
                 <aside>
                     <div>
                         <input type="text" placeholder="Search"/><br/>
-
                         <button id="sidebar-btn">Remove unused css</button>
                         <button id="sidebar-btn">Type of functions</button>
                         <button id="sidebar-btn">Tags for kraft Bags</button>
@@ -83,80 +119,92 @@ const Main = () => {
                         <button id="sidebar-btn">Categories</button>
                         <button id="sidebar-btn">DevOps MCQ preparation guide</button>
                     </div>
-
                     <div className="profile">
                         <img src="https://pbs.twimg.com/profile_images/994592419705274369/RLplF55e.jpg"
                              alt="Profile Pic" className="profile--pic"/>
                         <h1>Jimmy Donaldson</h1>
                     </div>
                 </aside>
-
                 <div className="content">
                     <section className="updates">
                         <h1>Prompt Name</h1>
-
                         <div className="update update-1">
-                            {messages.map((meg, index) => (
-                                <div className="message user-message" key={index}>
+                            {messages.map((msg, index) => (
+                                <div
+                                    key={index}
+                                    className={`message ${msg.type === 'user' ? 'user-message' : 'response-message'}`}
+                                >
                                     <div className="updt-left">
-                                        <p>{meg}</p>
-                                        <h1></h1>
-                                        <img src="https://pbs.twimg.com/profile_images/994592419705274369/RLplF55e.jpg"
-                                             alt="Profile Pic"/>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {answer.map((ans, index) => (
-                                <div key={index} className="message response-message">
-                                    <div className="updt-left">
-                                        <img src="https://pbs.twimg.com/profile_images/994592419705274369/RLplF55e.jpg"
-                                             alt="Profile Pic"/>
-                                        <h1></h1>
-                                        <div dangerouslySetInnerHTML={{__html: htmlAnswer}} />
+                                        {msg.type === 'response' && (
+                                            <img
+                                                src="https://pbs.twimg.com/profile_images/994592419705274369/RLplF55e.jpg"
+                                                alt="Profile Pic"/>
+                                        )}
+                                        {msg.type === 'user' ? (
+                                            <p>{msg.text}</p>
+                                        ) : (
+                                            <div className="analysis-container">
+                                                <Marked>{msg.text}</Marked>
+                                            </div>
+                                        )}
+                                        {isLoading && index === messages.length - 1 && (
+                                            <div className="loader">
+                                                <div className="spinner"></div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </section>
-
                     <section className="trending">
                         <h1>Chat</h1>
                         <div className="grid">
-            <span className="grid__app">
-                <textarea
-                    ref={textareaRef}
-                    placeholder="Search"
-                    onInput={handleInput}
-                    style={{zIndex: zIndex}}
-                ></textarea>
-                <button
-                    disabled={isLoading}
-                    onClick={() => postQuestion()}>
-                    {isLoading ?
-                        <div className="loader">
-                            <div className="bar1"></div>
-                            <div className="bar2"></div>
-                            <div className="bar3"></div>
-                            <div className="bar4"></div>
-                            <div className="bar5"></div>
-                            <div className="bar6"></div>
-                            <div className="bar7"></div>
-                            <div className="bar8"></div>
-                            <div className="bar9"></div>
-                            <div className="bar10"></div>
-                            <div className="bar11"></div>
-                            <div className="bar12"></div>
-                        </div> :
-                        <img src="https://img.icons8.com/?size=100&id=7695&format=png&color=000000" alt="Send Icon"/>
-                    }
-
-                </button>
-            </span>
+                            <span className="grid__app">
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    style={{display: 'none'}} // Hide the file input
+                                />
+                                <button onClick={handleButtonClick}>
+                                    <img src="https://img.icons8.com/?size=100&id=86444&format=png&color=000000"
+                                         alt="Upload Icon"/>
+                                </button>
+                                <textarea
+                                    ref={textareaRef}
+                                    placeholder="Search"
+                                    onInput={handleInput}
+                                    onKeyPress={handleKeyPress} // Handle Enter key press
+                                    style={{zIndex: zIndex}}
+                                    value={inputValue} // Bind inputValue to textarea
+                                ></textarea>
+                                <button
+                                    disabled={isLoading}
+                                    onClick={() => postQuestion()}>
+                                    {isLoading ?
+                                        <div className="loader">
+                                            <div className="bar1"></div>
+                                            <div className="bar2"></div>
+                                            <div className="bar3"></div>
+                                            <div className="bar4"></div>
+                                            <div className="bar5"></div>
+                                            <div className="bar6"></div>
+                                            <div className="bar7"></div>
+                                            <div className="bar8"></div>
+                                            <div className="bar9"></div>
+                                            <div className="bar10"></div>
+                                            <div className="bar11"></div>
+                                            <div className="bar12"></div>
+                                        </div> :
+                                        <img src="https://img.icons8.com/?size=100&id=7695&format=png&color=000000"
+                                             alt="Send Icon"/>
+                                    }
+                                </button>
+                            </span>
                         </div>
                     </section>
                 </div>
-
             </div>
         </div>
     );
