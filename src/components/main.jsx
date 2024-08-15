@@ -12,45 +12,47 @@ const Main = () => {
             autoClose: 2000,
             hideProgressBar: true
         });
-    }
+    };
+
     const {questionAsk, isLoading} = useImageAnalyzerContext();
 
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState("");
-    const [selectedFile, setSelectedFile] = useState(null); // New state for file
+    const [selectedFile, setSelectedFile] = useState(null); // State for storing the uploaded file
 
     const fileInputRef = useRef(null); // Reference to hidden file input
+    const textareaRef = useRef(null);
 
     const postQuestion = async () => {
-
-        if(selectedFile === null){
-            notify("please upload a file");
+        if (selectedFile === null) {
+            notify("Please upload a file");
             return;
         }
 
-        if(inputValue === ""){
+        if (inputValue === "") {
             notify("Enter a question please");
             return;
         }
-
+        var userInput = inputValue;
+        setInputValue("");
         // Add user message to messages state
-        setMessages([...messages, {type: 'user', text: inputValue}]);
+        setMessages([...messages, {type: 'user', text: userInput}]);
 
         const formData = new FormData();
-        formData.append('question', inputValue.toString());
+        formData.append('question', userInput.toString());
 
         if (selectedFile) {
-            formData.append('file', selectedFile); // Append the selected file if it exists
+            formData.append('file', selectedFile);
         }
 
         const responseAnswer = await questionAsk(formData);
 
         // Add response message to messages state
-        setMessages([...messages, {type: 'user', text: inputValue}, {type: 'response', text: responseAnswer.answer}]);
+        setMessages([...messages, {type: 'user', text: userInput}, {type: 'response', text: responseAnswer.answer}]);
 
-        setInputValue(""); // Clear the input value after submission
-        setSelectedFile(null); // Clear the selected file after submission
-        fileInputRef.current.value = ""; // Reset the file input element
+        // setInputValue(""); // Clear the input value after submission
+        // setSelectedFile(null); // Commented out to keep the file for subsequent questions
+        // fileInputRef.current.value = ""; // No need to reset the file input element
     };
 
     const handleFileChange = (e) => {
@@ -63,29 +65,20 @@ const Main = () => {
         }
     };
 
-    const textareaRef = useRef(null);
-    const [zIndex, setZIndex] = useState(1);
-
-    useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-        }
-    }, []);
-
     const handleInput = (e) => {
         setInputValue(e.target.value);
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-
-            if (textareaRef.current.scrollHeight > 100) {
-                setZIndex(10);
-            } else {
-                setZIndex(1);
-            }
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, window.innerHeight * 0.2)}px`;
         }
     };
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, window.innerHeight * 0.5)}px`;
+        }
+    }, []);
 
     const handleKeyPress = (e) => {
         if(!isLoading ){
@@ -147,14 +140,28 @@ const Main = () => {
                                                 <Marked>{msg.text}</Marked>
                                             </div>
                                         )}
-                                        {isLoading && index === messages.length - 1 && (
-                                            <div className="loader">
-                                                <div className="spinner"></div>
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                             ))}
+
+
+                            {isLoading && (
+                                <>
+                                    <div
+                                        className="message response-message"
+                                    >
+                                        <div className="updt-left">
+                                            <img
+                                                src="https://pbs.twimg.com/profile_images/994592419705274369/RLplF55e.jpg"
+                                                alt="Profile Pic"/>
+                                            <div className="analysis-container">
+                                                <div className="wait">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </section>
                     <section className="trending">
@@ -175,9 +182,9 @@ const Main = () => {
                                     ref={textareaRef}
                                     placeholder="Search"
                                     onInput={handleInput}
-                                    onKeyPress={handleKeyPress} // Handle Enter key press
-                                    style={{zIndex: zIndex}}
-                                    value={inputValue} // Bind inputValue to textarea
+                                    onKeyPress={handleKeyPress}
+                                    style={{overflowY: 'auto'}}
+                                    value={inputValue}
                                 ></textarea>
                                 <button
                                     disabled={isLoading}
@@ -208,6 +215,6 @@ const Main = () => {
             </div>
         </div>
     );
-}
+};
 
 export default Main;

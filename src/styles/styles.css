@@ -12,6 +12,9 @@ html {
 
 :root {
   --component-background: rgba(0, 0, 0, 0.45);
+  --ballcolor: #f2f2f2;
+  --shadow: 0px 0 #ffffff00;
+  --shadowcolor: #ffffff00;
 }
 
 .body {
@@ -149,13 +152,13 @@ aside h1 {
   border-radius: 30px;
   height: 90%;
   margin-right: 20px;
-  overflow: auto;
+  overflow-y: hidden;
   display: flex;
   flex-direction: column;
 }
 
 .content .updates {
-  height: 90%;
+  height: 80%;
   margin-top: 20px;
 }
 
@@ -316,12 +319,13 @@ aside h1 {
   flex-direction: row;
   border-radius: 10px;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .content .trending .grid textarea {
   font-size: 1.5rem;
   width: 100%;
+  max-height: 20%;
   margin-right: 1rem;
   padding: 0.9rem;
   color: #fff;
@@ -333,6 +337,7 @@ aside h1 {
   box-sizing: border-box;
   flex-grow: 1;
   resize: none;
+  overflow-y: visible;
 }
 
 .content .trending .grid button {
@@ -340,24 +345,24 @@ aside h1 {
   color: white;
   border: 0;
   outline: 0;
-  border-radius: 30px;
+  /*border-radius: 30px;*/
   cursor: pointer;
-  padding: 0.9rem 1.5rem;
+  /*padding: 0.9rem 1.5rem;*/
   flex-shrink: 0;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  /*box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);*/
+  /*transition: box-shadow 0.3s ease;*/
 }
 
-.content .trending .grid button:hover {
-  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
-}
+/*.content .trending .grid button:hover {*/
+/*  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);*/
+/*}*/
 
 .content .trending .grid button img {
   width: 30px;
   height: 30px;
   filter: invert(100%) brightness(200%);
-  transform: rotate(90deg);
-  object-fit: contain;
+  /*transform: rotate(90deg);*/
+  /*object-fit: contain;*/
 }
 
 .loader {
@@ -448,4 +453,82 @@ aside h1 {
 .loader .bar12 {
   transform: rotate(330deg) translate(0, -130%);
   animation-delay: -0.1s;
+}
+
+.content .update .response-message .analysis-container
+.wait {
+  width: 10px;
+  height: 10px;
+  left: 5px;
+  top: 10px;
+  border-radius: 15%;
+  position: relative;
+  color: var(--ballcolor);
+  animation: shadowRolling 3s linear infinite;
+}
+
+@keyframes shadowRolling {
+
+  0% {
+    box-shadow: var(--shadow),
+    var(--shadow),
+    var(--shadow),
+    var(--shadow);
+  }
+
+  12% {
+    box-shadow: 100px 0 var(--ballcolor),
+    var(--shadow),
+    var(--shadow),
+    var(--shadow);
+  }
+
+  25% {
+    box-shadow: 110px 0 var(--ballcolor),
+    100px 0 var(--ballcolor),
+    var(--shadow),
+    var(--shadow);
+  }
+
+  36% {
+    box-shadow: 120px 0 var(--ballcolor),
+    110px 0 var(--ballcolor),
+    100px 0 var(--ballcolor),
+    var(--shadow);
+  }
+
+  50% {
+    box-shadow: 130px 0 var(--ballcolor),
+    120px 0 var(--ballcolor),
+    110px 0 var(--ballcolor),
+    100px 0 var(--ballcolor);
+  }
+
+  62% {
+    box-shadow: 200px 0 var(--shadowcolor),
+    130px 0 var(--ballcolor),
+    120px 0 var(--ballcolor),
+    110px 0 var(--ballcolor);
+  }
+
+  75% {
+    box-shadow: 200px 0 var(--shadowcolor),
+    200px 0 var(--shadowcolor),
+    130px 0 var(--ballcolor),
+    120px 0 var(--ballcolor);
+  }
+
+  87% {
+    box-shadow: 200px 0 var(--shadowcolor),
+    200px 0 var(--shadowcolor),
+    200px 0 var(--shadowcolor),
+    130px 0 var(--ballcolor);
+  }
+
+  100% {
+    box-shadow: 200px 0 var(--shadowcolor),
+    200px 0 var(--shadowcolor),
+    200px 0 var(--shadowcolor),
+    200px 0 var(--shadowcolor);
+  }
 }
