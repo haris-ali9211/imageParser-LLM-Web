@@ -20,7 +20,7 @@ export default async function postApi(endpoint, payload, setIsLoading) {
         return response.data;
     } catch (e) {
         console.log(e)
-        console.log('error', e.data);
+        console.log('error', e.message);
         setIsLoading(false);
         if (
             e.message.includes('timeout of ') &&
@@ -42,6 +42,6 @@ export default async function postApi(endpoint, payload, setIsLoading) {
                 visibilityTime: 5000,
             });
         }
-        return e.response.data.error;
+        return e.message;
     }
 }
